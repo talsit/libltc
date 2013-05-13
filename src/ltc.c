@@ -24,29 +24,59 @@
 #include <math.h>
 
 #include "ltc.h"
+
+#if LTC_USE_DECODER
 #include "decoder.h"
+#endif // LTC_USE_DECODER
+
+#if LTC_USE_ENCODER
 #include "encoder.h"
+#endif // LTC_USE_ENCODER
+
+#if LTC_USE_DECODER
+
+#if LTC_STATIC_OBJECTS
+#ifndef LTC_DECODE_QUEUE_LENGTH
+#error LTC_DECODE_QUEUE_LENGTH must be defined
+#endif
+static LTCDecoder LTCDecoderInstance;
+static LTCFrameExt LTCFrameExtInstances[LTC_DECODE_QUEUE_LENGTH];
+#endif // LTC_STATIC_OBJECTS
+
 
 /* -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * Decoder
  */
 
 LTCDecoder* ltc_decoder_create(int apv, int queue_len) {
-	LTCDecoder* d = (LTCDecoder*) calloc(1, sizeof(LTCDecoder));
-	if (!d) return NULL;
+	
+#if LTC_STATIC_OBJECTS
+		LTCDecoder* d = &LTCDecoderInstance;
+#else // LTC_STATIC_OBJECTS
+		LTCDecoder* d = (LTCDecoder*) calloc(1, sizeof(LTCDecoder));
+		if (!d) 
+			return NULL;
+#endif // LTC_STATIC_OBJECTS
 
-	d->queue_len = queue_len;
-	d->queue = (LTCFrameExt*) calloc(d->queue_len, sizeof(LTCFrameExt));
-	if (!d->queue) {
-		free(d);
-		return NULL;
-	}
+	
+#if LTC_STATIC_OBJECTS
+		d->queue_len = LTC_DECODE_QUEUE_LENGTH;
+		d->queue = LTCFrameExtInstances;
+#else // LTC_STATIC_OBJECTS
+		d->queue_len = queue_len;
+		d->queue = (LTCFrameExt*) calloc(d->queue_len, sizeof(LTCFrameExt));
+		if (!d->queue) {
+			free(d);
+			return NULL;
+		}
+#endif // LTC_STATIC_OBJECTS
+		
 	d->biphase_state = 1;
 	d->snd_to_biphase_period = apv / 80;
 	d->snd_to_biphase_lmt = (d->snd_to_biphase_period * 3) / 4;
 
-	d->snd_to_biphase_min = SAMPLE_CENTER;
-	d->snd_to_biphase_max = SAMPLE_CENTER;
+	d->snd_to_biphase_min = LTC_SAMPLE_CENTER;
+	d->snd_to_biphase_max = LTC_SAMPLE_CENTER;
 	d->frame_start_prev = -1;
 	d->biphase_tic = 0;
 
@@ -54,10 +84,13 @@ LTCDecoder* ltc_decoder_create(int apv, int queue_len) {
 }
 
 int ltc_decoder_free(LTCDecoder *d) {
+#if LTC_STATIC_OBJECTS
+#else // LTC_STATIC_OBJECTS
+	
 	if (!d) return 1;
 	if (d->queue) free(d->queue);
 	free(d);
-
+#endif // LTC_STATIC_OBJECTS
 	return 0;
 }
 
@@ -109,6 +142,12 @@ void ltc_decoder_queue_flush(LTCDecoder* d) {
 int ltc_decoder_queue_length(LTCDecoder* d) {
 	return (d->queue_write_off - d->queue_read_off + d->queue_len) % d->queue_len;
 }
+
+#endif // LTC_USE_DECODER
+
+
+#if LTC_USE_ENCODER
+
 
 /* -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * Encoder
@@ -206,8 +245,8 @@ int ltc_encoder_set_volume(LTCEncoder *e, double dBFS) {
 	if (pp < 1 || pp > 127)
 		return -1;
 	ltcsnd_sample_t diff = ((ltcsnd_sample_t) pp)&0x7f;
-	e->enc_lo = SAMPLE_CENTER - diff;
-	e->enc_hi = SAMPLE_CENTER + diff;
+	e->enc_lo = LTC_SAMPLE_CENTER - diff;
+	e->enc_hi = LTC_SAMPLE_CENTER + diff;
 	return 0;
 }
 
@@ -216,7 +255,7 @@ void ltc_encoder_set_filter(LTCEncoder *e, double rise_time) {
 	 * LTC signal should have a rise time of 40 us +/- 10 us.
 	 *
 	 * rise-time means from <10% to >90% of the signal.
-	 * in each call to addvalues() we start at 50% (SAMPLE_CENTER), so
+	 * in each call to addvalues() we start at 50% (LTC_SAMPLE_CENTER), so
 	 * here we need half-of it.
 	 */
 
@@ -292,6 +331,9 @@ int ltc_encoder_get_buffer(LTCEncoder *e, ltcsnd_sample_t *buf) {
 	e->offset = 0;
 	return(len);
 }
+
+#endif // LTC_USE_ENCODER
+
 
 void ltc_frame_set_parity(LTCFrame *frame, enum LTC_TV_STANDARD standard) {
 	int i;

@@ -82,6 +82,8 @@
 
 #include "decoder.h"
 
+#if LTC_USE_DECODER
+		
 #define DEBUG_DUMP(msg, f) \
 { \
 	int _ii; \
@@ -275,8 +277,8 @@ void decode_ltc(LTCDecoder *d, ltcsnd_sample_t *sound, size_t size, ltc_off_t po
 		ltcsnd_sample_t max_threshold, min_threshold;
 
 		/* track minimum and maximum values */
-		d->snd_to_biphase_min = SAMPLE_CENTER - (((SAMPLE_CENTER - d->snd_to_biphase_min) * 15) / 16);
-		d->snd_to_biphase_max = SAMPLE_CENTER + (((d->snd_to_biphase_max - SAMPLE_CENTER) * 15) / 16);
+		d->snd_to_biphase_min = LTC_SAMPLE_CENTER - (((LTC_SAMPLE_CENTER - d->snd_to_biphase_min) * 15) / 16);
+		d->snd_to_biphase_max = LTC_SAMPLE_CENTER + (((d->snd_to_biphase_max - LTC_SAMPLE_CENTER) * 15) / 16);
 
 		if (sound[i] < d->snd_to_biphase_min)
 			d->snd_to_biphase_min = sound[i];
@@ -284,8 +286,8 @@ void decode_ltc(LTCDecoder *d, ltcsnd_sample_t *sound, size_t size, ltc_off_t po
 			d->snd_to_biphase_max = sound[i];
 
 		/* set the thresholds for hi/lo state tracking */
-		min_threshold = SAMPLE_CENTER - (((SAMPLE_CENTER - d->snd_to_biphase_min) * 8) / 16);
-		max_threshold = SAMPLE_CENTER + (((d->snd_to_biphase_max - SAMPLE_CENTER) * 8) / 16);
+		min_threshold = LTC_SAMPLE_CENTER - (((LTC_SAMPLE_CENTER - d->snd_to_biphase_min) * 8) / 16);
+		max_threshold = LTC_SAMPLE_CENTER + (((d->snd_to_biphase_max - LTC_SAMPLE_CENTER) * 8) / 16);
 
 		if ( /* Check for a biphase state change */
 			   (  d->snd_to_biphase_state && (sound[i] > max_threshold) )
@@ -332,3 +334,5 @@ void decode_ltc(LTCDecoder *d, ltcsnd_sample_t *sound, size_t size, ltc_off_t po
 		d->snd_to_biphase_cnt++;
 	}
 }
+
+#endif /* LTC_USE_DECODER */

@@ -18,10 +18,12 @@
    If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef LTC_DECODER_H
+#define LTC_DECODER_H 1
+
 #include "ltc.h"
-#ifndef SAMPLE_CENTER // also defined in encoder.h
-#define SAMPLE_CENTER 128 // unsigned 8 bit.
-#endif
+
+#if LTC_USE_DECODER
 
 struct LTCDecoder {
 	LTCFrameExt* queue;
@@ -52,3 +54,6 @@ struct LTCDecoder {
 
 
 void decode_ltc(LTCDecoder *d, ltcsnd_sample_t *sound, size_t size, ltc_off_t posinfo);
+
+#endif /* LTC_USE_DECODER */
+#endif /* LTC_DECODER_H */

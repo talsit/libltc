@@ -36,26 +36,13 @@
 #ifndef LTC_H
 #define LTC_H 1
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stddef.h> /* size_t */
-
-#ifndef DOXYGEN_IGNORE
-/* libltc version */
-#define LIBLTC_VERSION "1.1.1"
-#define LIBLTC_VERSION_MAJOR  1
-#define LIBLTC_VERSION_MINOR  1
-#define LIBLTC_VERSION_MICRO  1
-
-/* interface revision number
- * http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
- */
-#define LIBLTC_CUR 11
-#define LIBLTC_REV  1
-#define LIBLTC_AGE  0
-#endif /* end DOXYGEN_IGNORE */
+#include "ltc_conf.h"
 
 /**
  * default audio sample type: 8bit unsigned (mono)
@@ -66,8 +53,6 @@ typedef unsigned char ltcsnd_sample_t;
  * sample-count offset - 64bit wide
  */
 typedef long long int ltc_off_t;
-
-#define LTC_FRAME_BIT_COUNT	80
 
 /**
  * Raw 80 bit LTC frame
@@ -775,4 +760,4 @@ ltc_off_t ltc_frame_alignment(double samples_per_frame, enum LTC_TV_STANDARD sta
 }
 #endif
 
-#endif
+#endif /* LTC_H */

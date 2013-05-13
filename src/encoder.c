@@ -25,6 +25,8 @@
 
 #include "encoder.h"
 
+#if LTC_USE_ENCODER
+
 /**
  * add values to the output buffer
  */
@@ -32,7 +34,9 @@ static int addvalues(LTCEncoder *e, int n) {
 	const ltcsnd_sample_t tgtval = e->state ? e->enc_hi : e->enc_lo;
 
 	if (e->offset + n >= e->bufsize) {
+#if LTC_HAVE_STDIO
 		fprintf(stderr, "libltc: buffer overflow: %d/%lu\n", (int) e->offset, (unsigned long) e->bufsize);
+#endif
 		return 1;
 	}
 
@@ -49,7 +53,7 @@ static int addvalues(LTCEncoder *e, int n) {
 		 * e->cutoff = 1.0 -exp( -1.0 / (sample_rate * .000020 / exp(1.0)) );
 		 */
 		int i;
-		ltcsnd_sample_t val = SAMPLE_CENTER;
+		ltcsnd_sample_t val = LTC_SAMPLE_CENTER;
 		int m = (n+1)>>1;
 		for (i = 0 ; i < m ; i++) {
 			val = val + tcf * (tgtval - val);
@@ -104,3 +108,5 @@ int encode_byte(LTCEncoder *e, int byte, double speed) {
 
 	return err;
 }
+
+#endif // LTC_USE_ENCODER

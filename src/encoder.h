@@ -18,10 +18,12 @@
    If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef LTC_ENCODER_H
+#define LTC_ENCODER_H 1
+
 #include "ltc.h"
-#ifndef SAMPLE_CENTER // also defined in decoder.h
-#define SAMPLE_CENTER 128 // unsigned 8 bit.
-#endif
+
+#if LTC_USE_ENCODER
 
 struct LTCEncoder {
 	double fps;
@@ -45,3 +47,6 @@ struct LTCEncoder {
 };
 
 int encode_byte(LTCEncoder *e, int byte, double speed);
+
+#endif /* LTC_USE_ENCODER */
+#endif /* LTC_ENCODER_H */
