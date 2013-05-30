@@ -51,6 +51,7 @@ static LTCFrameExt LTCFrameExtInstances[LTC_DECODE_QUEUE_LENGTH];
 LTCDecoder* ltc_decoder_create(int apv, int queue_len) {
 	
 #if LTC_STATIC_OBJECTS
+		(void)queue_len;
 		LTCDecoder* d = &LTCDecoderInstance;
 #else // LTC_STATIC_OBJECTS
 		LTCDecoder* d = (LTCDecoder*) calloc(1, sizeof(LTCDecoder));
@@ -85,8 +86,8 @@ LTCDecoder* ltc_decoder_create(int apv, int queue_len) {
 
 int ltc_decoder_free(LTCDecoder *d) {
 #if LTC_STATIC_OBJECTS
+	(void)d;
 #else // LTC_STATIC_OBJECTS
-	
 	if (!d) return 1;
 	if (d->queue) free(d->queue);
 	free(d);

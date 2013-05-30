@@ -42,7 +42,7 @@
  Configuration for LTC
  */
 #define LTC_USE_DECODER 1
-#define LTC_USE_ENCODER 1
+#define LTC_USE_ENCODER 0
 #define LTC_STATIC_OBJECTS 1
 #define LTC_HAVE_STDIO 0
 
